@@ -36,6 +36,12 @@ describe("filterProjects", () => {
   it("every real project has at least one tag", () => {
     for (const p of projects) expect(p.tags.length).toBeGreaterThan(0);
   });
+
+  it("every project link is a full https URL", () => {
+    for (const p of projects) {
+      for (const l of p.links ?? []) expect(l.url).toMatch(/^https:\/\//);
+    }
+  });
 });
 
 describe("clampPosition", () => {

@@ -9,6 +9,7 @@ export const projects = [
     blurb: "Stress & mood tracking web app. I'm on the backend: SQLite database and schema design.",
     tags: ["web", "data"],
     status: "in progress",
+    links: [{ label: "code", url: "https://github.com/Project-Code-Regulate/regulate" }],
     x: 6, y: 14,
   },
   {
@@ -39,7 +40,7 @@ export const projects = [
     blurb: "Cross-venue prediction market analytics for Kalshi + Polymarket.",
     tags: ["markets", "data", "web"],
     status: "shipped",
-    link: "https://getpriors.com",
+    links: [{ label: "open", url: "https://getpriors.com" }],
     x: 72, y: 58,
   },
 ];

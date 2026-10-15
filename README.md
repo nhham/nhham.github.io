@@ -12,6 +12,22 @@ A "desktop" style personal site showing what I'm working on right now (Regulate,
 
 The logic lives in `src/logic.js` as two pure functions (`filterProjects`, `clampPosition`), so it can be tested without a browser. `src/main.js` connects them to the page.
 
+## Free-time folder + Clash of Clans
+
+The **free-time** folder on the desktop opens a window with my hobbies (volleyball, basketball, Clash of Clans). The Clash of Clans card shows my Town Hall, war stars, clan, how long I've played, and a **show my base** popup.
+
+- Stats come from the official Clash of Clans API, but **the site never calls the API**. The API key is locked to whitelisted IP addresses and must stay secret, so `scripts/fetch-coc.mjs` runs on my own machine and saves only the fields the site needs to `data/coc.json`, which is committed. The page reads that file.
+- To refresh the stats:
+  1. Create `.env` in the repo root (it's in `.gitignore`, never commit it):
+     ```
+     COC_API_KEY=your-key-from-developer.clashofclans.com
+     COC_PLAYER_TAG="#YOURTAG"
+     ```
+     The tag needs quotes because `.env` files treat `#` as a comment.
+  2. Run `npm run coc`, then commit the updated `data/coc.json`.
+- `START_YEAR` and `BASE_LINK` are set at the top of `src/coc-view.js`. The base screenshot is `assets/base.jpg`.
+- Logic is in `src/coc.js` (`yearsPlaying`, `playingLabel`, `clanLabel`, `isValidBaseLink`) and tested in `tests/coc.test.js`, including edge cases like a future start year, not being in a clan, and an unfilled base link.
+
 ## Setup
 
 Requires Node 20+.

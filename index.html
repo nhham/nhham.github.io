@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Nathaniel Ham</title>
-  <meta name="description" content="Nathaniel Ham — CS + Statistics at UIUC. What I'm building right now.">
+  <meta name="description" content="Nathaniel Ham: CS + Statistics at UIUC. Databases, data, and what I'm building right now.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=Caveat:wght@600&display=swap" rel="stylesheet">
@@ -17,48 +17,120 @@
     <span class="clock" id="clock" aria-hidden="true"></span>
   </header>
 
-  <main class="desktop" id="desktop">
-    <!-- decorations (not interactive) -->
-    <div class="deco sticker" aria-hidden="true"><small>HELLO</small><small class="s2">my name is</small><b>Nathaniel</b></div>
-    <div class="deco kao k1" aria-hidden="true">(•‿•)</div>
-    <div class="deco kao k2" aria-hidden="true">¯\_(ツ)_/¯</div>
-    <div class="deco kao k3" aria-hidden="true">{ ^-^ }</div>
-    <div class="deco folder f1" aria-hidden="true"></div>
-    <div class="deco folder f2" aria-hidden="true"></div>
-    <svg class="deco candles" viewBox="0 0 90 50" aria-hidden="true">
-      <g stroke-width="2">
-        <line x1="10" y1="12" x2="10" y2="40" stroke="#16a34a"/><rect x="6" y="20" width="8" height="14" fill="#16a34a"/>
-        <line x1="28" y1="8" x2="28" y2="34" stroke="#dc2626"/><rect x="24" y="14" width="8" height="12" fill="#dc2626"/>
-        <line x1="46" y1="16" x2="46" y2="44" stroke="#16a34a"/><rect x="42" y="22" width="8" height="16" fill="#16a34a"/>
-        <line x1="64" y1="4" x2="64" y2="30" stroke="#16a34a"/><rect x="60" y="8" width="8" height="16" fill="#16a34a"/>
-        <line x1="82" y1="2" x2="82" y2="22" stroke="#dc2626"/><rect x="78" y="6" width="8" height="10" fill="#dc2626"/>
-      </g>
-    </svg>
-    <div class="deco card" aria-hidden="true"><span>N</span></div>
-    <div class="deco ball" aria-hidden="true">⚽</div>
+  <main>
+    <!-- ================= desktop ================= -->
+    <section class="desktop" id="desktop" aria-label="What I'm working on">
+      <div class="glow g1" aria-hidden="true"></div>
+      <div class="glow g2" aria-hidden="true"></div>
+      <div class="deco sticker" aria-hidden="true"><small>HELLO</small><small class="s2">my name is</small><b>Nathaniel</b></div>
+      <svg class="deco candles" viewBox="0 0 90 50" aria-hidden="true">
+        <g stroke-width="2">
+          <line x1="10" y1="12" x2="10" y2="40" stroke="#16a34a"/><rect x="6" y="20" width="8" height="14" fill="#16a34a"/>
+          <line x1="28" y1="8" x2="28" y2="34" stroke="#dc2626"/><rect x="24" y="14" width="8" height="12" fill="#dc2626"/>
+          <line x1="46" y1="16" x2="46" y2="44" stroke="#16a34a"/><rect x="42" y="22" width="8" height="16" fill="#16a34a"/>
+          <line x1="64" y1="4" x2="64" y2="30" stroke="#16a34a"/><rect x="60" y="8" width="8" height="16" fill="#16a34a"/>
+          <line x1="82" y1="2" x2="82" y2="22" stroke="#dc2626"/><rect x="78" y="6" width="8" height="10" fill="#dc2626"/>
+        </g>
+      </svg>
 
-    <section class="hero">
-      <h1>nathaniel ham</h1>
-      <p>cs + stats @ uiuc · building things with data</p>
-      <div class="hero-btns">
-        <a class="btn primary" href="https://github.com/nhham">github</a>
-        <a class="btn" href="mailto:nathanielhham6@gmail.com">say hi</a>
+      <section class="hero">
+        <h1>nathaniel ham</h1>
+        <p class="lede">cs + stats @ uiuc · I turn messy data into things people actually use</p>
+        <div class="hero-btns">
+          <a class="btn primary" href="https://github.com/nhham" target="_blank" rel="noopener">github</a>
+          <a class="btn" href="https://www.linkedin.com/in/nhham" target="_blank" rel="noopener">linkedin</a>
+          <a class="btn" href="mailto:nathanielhham6@gmail.com">say hi</a>
+        </div>
+        <p class="hint">currently working on<span class="drag-hint"> · drag the windows around</span></p>
+      </section>
+
+      <button class="desk-folder" id="free-open" type="button" aria-haspopup="dialog">
+        <span class="folder-icon" aria-hidden="true"></span>
+        <span class="folder-name">free-time</span>
+      </button>
+
+      <div id="windows"></div>
+
+      <div class="window empty" id="empty" hidden role="status">
+        <div class="titlebar"><i></i><i></i><i></i><span>empty-folder</span></div>
+        <div class="body">
+          <p class="big">(¬_¬)</p>
+          <p>nothing tagged <b id="empty-tag"></b> yet.</p>
+          <button class="btn primary" id="reset" type="button">reset</button>
+        </div>
       </div>
-      <p class="hint">currently working on<span class="drag-hint"> · drag the windows around</span></p>
     </section>
 
-    <div id="windows"></div>
-
-    <div class="window empty" id="empty" hidden role="status">
-      <div class="titlebar"><i></i><i></i><i></i><span>empty-folder</span></div>
-      <div class="body">
-        <p class="big">(¬_¬)</p>
-        <p>nothing tagged <b id="empty-tag"></b> yet.</p>
-        <button class="btn primary" id="reset" type="button">reset</button>
+    <!-- ================= about ================= -->
+    <section class="about" aria-labelledby="about-title">
+      <div class="about-inner">
+        <figure class="photo-win">
+          <div class="titlebar"><i></i><i></i><i></i><span>me.jpg</span></div>
+          <img src="assets/me.jpg" alt="Nathaniel Ham" width="400" height="400" loading="lazy">
+        </figure>
+        <div class="about-right">
+        <div class="bio">
+          <p class="eyebrow">about me</p>
+          <h2 id="about-title">hi, I'm Nathaniel.</h2>
+          <p class="school"><img src="assets/illinois.png" alt="" width="20" height="28"><span><b>University of Illinois Urbana-Champaign</b> · CS + Statistics, Data Science minor</span></p>
+          <p>I'm a CS + Statistics student at UIUC with a data science minor. I like turning messy data into things people actually use.</p>
+          <p>Right now that means designing the database for <b>Regulate</b>, doing product work with <b>NOBE</b>, and building for <b>SAIL 2027</b>. Before that I interned at <b>ProteinTech</b>, helping their logistics team work more efficiently, and built <b>Priors</b>, an analytics platform for prediction markets.</p>
+          <p>I'm looking for <b>software engineering</b> and <b>data analytics</b> internships.</p>
+        </div>
+        </div>
       </div>
-    </div>
+    </section>
   </main>
 
+  <footer class="foot">
+    <div class="foot-links">
+      <a href="https://github.com/nhham" target="_blank" rel="noopener">github</a>
+      <a href="https://www.linkedin.com/in/nhham" target="_blank" rel="noopener">linkedin</a>
+      <a href="mailto:nathanielhham6@gmail.com">email</a>
+    </div>
+    <p>built with tests + CI · deployed from main</p>
+  </footer>
+
+  <!-- ================= free-time folder ================= -->
+  <dialog class="folder-dialog" id="free-dialog" aria-labelledby="free-title">
+    <div class="titlebar"><i></i><i></i><i></i><span id="free-title">~/free-time</span>
+      <button class="x" id="free-close" type="button" aria-label="Close">×</button>
+    </div>
+    <div class="folder-body">
+      <p class="folder-lead">what I like to do when I'm not coding</p>
+      <div class="hobbies">
+        <article class="hobby">
+          <div class="hobby-icon" aria-hidden="true">🏐</div>
+          <h3>volleyball</h3>
+          <p>pickup games with friends, any chance I get.</p>
+        </article>
+        <article class="hobby">
+          <div class="hobby-icon" aria-hidden="true">🏀</div>
+          <h3>basketball</h3>
+          <p>running courts and shooting around to reset.</p>
+        </article>
+        <article class="hobby coc-card">
+          <div class="hobby-icon" aria-hidden="true">🏰</div>
+          <h3>clash of clans</h3>
+          <p class="coc-since" id="coc-since"></p>
+          <p class="coc-who"><b id="coc-name">loading…</b> <span id="coc-tag" class="coc-tag"></span></p>
+          <dl class="coc-stats" id="coc-stats"></dl>
+          <button class="btn primary small" id="base-open" type="button">show my base</button>
+        </article>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog class="base-dialog" id="base-dialog" aria-labelledby="base-title">
+    <div class="titlebar"><i></i><i></i><i></i><span id="base-title">my-base.png</span></div>
+    <img src="assets/base.jpg" alt="Screenshot of my Clash of Clans home village" loading="lazy">
+    <div class="base-actions">
+      <a class="btn primary" id="base-link" href="https://link.clashofclans.com/" target="_blank" rel="noopener" hidden>copy my base</a>
+      <button class="btn" id="base-close" type="button">close</button>
+    </div>
+  </dialog>
+
   <script type="module" src="src/main.js"></script>
+  <script type="module" src="src/coc-view.js"></script>
 </body>
 </html>

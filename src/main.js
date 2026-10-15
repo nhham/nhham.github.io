@@ -24,10 +24,12 @@ for (const p of projects) {
       <p class="org">${p.org}</p>
       <p class="blurb">${p.blurb}</p>
       <div class="chips">
-        ${p.tags.map((t) => `<span class="chip">${t}</span>`).join("")}
+        ${p.tags.map((t) => `<span class="chip ${t}">${t}</span>`).join("")}
         <span class="status ${p.status === "shipped" ? "shipped" : ""}">● ${p.status}</span>
       </div>
-      ${p.link ? `<a class="open" href="${p.link}" target="_blank" rel="noopener">open ↗</a>` : ""}
+      ${p.links?.length ? `<div class="links">${p.links
+        .map((l) => `<a href="${l.url}" target="_blank" rel="noopener">${l.label} ↗</a>`)
+        .join("")}</div>` : ""}
     </div>`;
   windowsEl.appendChild(win);
   makeDraggable(win);

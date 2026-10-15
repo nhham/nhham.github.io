@@ -5,7 +5,8 @@
   "scripts": {
     "test": "vitest run",
     "check": "node scripts/check.mjs",
-    "build": "node scripts/build.mjs"
+    "build": "node scripts/build.mjs",
+    "coc": "node --env-file=.env scripts/fetch-coc.mjs"
   },
   "devDependencies": {
     "vitest": "^2.1.9"

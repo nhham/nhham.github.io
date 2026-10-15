@@ -55,7 +55,7 @@ describe("clampPosition", () => {
   });
 
   it("edge case: dragging past the right/bottom edge keeps the window fully visible", () => {
-    expect(clampPosition(950, 700, 200, 100, 1000, 600)).toEqual({ x: 801, y: 500 });
+    expect(clampPosition(950, 700, 200, 100, 1000, 600)).toEqual({ x: 800, y: 500 });
   });
 
   it("edge case: a window wider than the desktop pins to 0", () => {

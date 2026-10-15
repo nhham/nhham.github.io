@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=Caveat:wght@600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=6">
 </head>
 <body>
   <header class="menubar">
@@ -44,7 +44,7 @@
         <p class="hint">currently working on<span class="drag-hint"> · drag the windows around</span></p>
       </section>
 
-      <button class="desk-folder" id="free-open" type="button" aria-haspopup="dialog">
+      <button class="desk-folder" id="free-open" type="button" data-open="free">
         <span class="folder-icon" aria-hidden="true"></span>
         <span class="folder-name">free-time</span>
       </button>
@@ -75,7 +75,6 @@
           <p class="school"><img src="assets/illinois.png" alt="" width="20" height="28"><span><b>University of Illinois Urbana-Champaign</b> · CS + Statistics, Data Science minor</span></p>
           <p>I'm a CS + Statistics student at UIUC with a data science minor. I like turning messy data into things people actually use.</p>
           <p>Right now that means designing the database for <b>Regulate</b>, doing product work with <b>NOBE</b>, and building for <b>SAIL 2027</b>. Before that I interned at <b>ProteinTech</b>, helping their logistics team work more efficiently, and built <b>Priors</b>, an analytics platform for prediction markets.</p>
-          <p>I'm looking for <b>software engineering</b> and <b>data analytics</b> internships.</p>
         </div>
         </div>
       </div>
@@ -91,26 +90,20 @@
     <p>built with tests + CI · deployed from main</p>
   </footer>
 
-  <!-- ================= free-time folder ================= -->
-  <dialog class="folder-dialog" id="free-dialog" aria-labelledby="free-title">
-    <div class="titlebar"><i></i><i></i><i></i><span id="free-title">~/free-time</span>
-      <button class="x" id="free-close" type="button" aria-label="Close">×</button>
-    </div>
+  <!-- ================= free-time window ================= -->
+  <section class="window free-win" id="free-win" hidden aria-labelledby="free-title">
+    <div class="titlebar"><span id="free-title">~/free-time</span></div>
     <div class="folder-body">
       <p class="folder-lead">what I like to do when I'm not coding</p>
       <div class="hobbies">
-        <article class="hobby">
-          <div class="hobby-icon" aria-hidden="true">🏐</div>
-          <h3>volleyball</h3>
-          <p>pickup games with friends, any chance I get.</p>
-        </article>
-        <article class="hobby">
-          <div class="hobby-icon" aria-hidden="true">🏀</div>
-          <h3>basketball</h3>
-          <p>running courts and shooting around to reset.</p>
+        <article class="hobby sports-card">
+          <img class="hobby-photo" src="assets/volleyball.jpeg" alt="Me and two teammates holding Illinois intramural champion shirts in the gym" width="768" height="1024" loading="lazy">
+          <h3>volleyball + basketball</h3>
+          <p class="win">🏆 intramural volleyball champions · 2025–26</p>
+          <p>pickup games with friends any chance I get.</p>
         </article>
         <article class="hobby coc-card">
-          <div class="hobby-icon" aria-hidden="true">🏰</div>
+          <img class="hobby-app" src="assets/coc.jpeg" alt="" width="512" height="512" loading="lazy">
           <h3>clash of clans</h3>
           <p class="coc-since" id="coc-since"></p>
           <p class="coc-who"><b id="coc-name">loading…</b> <span id="coc-tag" class="coc-tag"></span></p>
@@ -119,7 +112,15 @@
         </article>
       </div>
     </div>
-  </dialog>
+  </section>
+
+  <!-- ================= dock ================= -->
+  <nav class="dock" aria-label="Quick links">
+    <button class="dock-item" type="button" data-open="free"><span class="ic ic-free" aria-hidden="true"></span><span class="tip">free time</span></button>
+    <a class="dock-item" href="https://github.com/nhham" target="_blank" rel="noopener"><span class="ic ic-code" aria-hidden="true"></span><span class="tip">github</span></a>
+    <a class="dock-item" href="https://www.linkedin.com/in/nhham" target="_blank" rel="noopener"><span class="ic ic-work" aria-hidden="true"></span><span class="tip">linkedin</span></a>
+    <a class="dock-item" href="mailto:nathanielhham6@gmail.com"><span class="ic ic-mail" aria-hidden="true"></span><span class="tip">email</span></a>
+  </nav>
 
   <dialog class="base-dialog" id="base-dialog" aria-labelledby="base-title">
     <div class="titlebar"><i></i><i></i><i></i><span id="base-title">my-base.png</span></div>
@@ -130,7 +131,7 @@
     </div>
   </dialog>
 
-  <script type="module" src="src/main.js"></script>
-  <script type="module" src="src/coc-view.js"></script>
+  <script type="module" src="src/main.js?v=6"></script>
+  <script type="module" src="src/coc-view.js?v=4"></script>
 </body>
 </html>

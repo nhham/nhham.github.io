@@ -26,7 +26,8 @@ a { color: inherit; }
 
 /* ---------- menu bar ---------- */
 .menubar {
-  position: sticky; top: 0; z-index: 50;
+  position: sticky; top: 0; z-index: 1000;
+  -webkit-backdrop-filter: blur(10px);
   display: flex; align-items: center; justify-content: space-between; gap: 16px;
   padding: 10px 24px;
   background: rgba(251, 250, 247, 0.85);
@@ -42,7 +43,7 @@ a { color: inherit; }
 }
 .tab:hover { color: var(--ink); background: #efede7; }
 .tab[aria-pressed="true"] { color: var(--ink); background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.12); font-weight: 600; }
-.tab:focus-visible, .btn:focus-visible, .desk-folder:focus-visible, .x:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.tab:focus-visible, .btn:focus-visible, .desk-folder:focus-visible, .x:focus-visible, .light:focus-visible, .dock-item:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 .clock { color: var(--muted); font-variant-numeric: tabular-nums; }
 
 /* ---------- desktop ---------- */
@@ -83,6 +84,8 @@ a { color: inherit; }
   transition: opacity .25s ease, transform .25s ease, filter .25s ease;
   touch-action: none; user-select: none;
 }
+.window.zoomed { width: 360px; }
+.window.zoomed .blurb { font-size: 16px; }
 .window.dragging { cursor: grabbing; box-shadow: 0 20px 50px rgba(0,0,0,.16); transition: none; }
 .window.faded { opacity: .18; filter: grayscale(1); transform: scale(.96); pointer-events: none; }
 .window.pop { transform: scale(1.03); }
@@ -93,7 +96,18 @@ a { color: inherit; }
 .titlebar i { width: 11px; height: 11px; border-radius: 50%; background: #ff5f57; }
 .titlebar i:nth-child(2) { background: #febc2e; }
 .titlebar i:nth-child(3) { background: #28c840; }
+.lights { display: flex; gap: 6px; }
+.light { width: 12px; height: 12px; padding: 0; border: 0; border-radius: 50%; background: #ff5f57; cursor: pointer; position: relative; }
+.light.min { background: #febc2e; }
+.light.max { background: #28c840; }
+.light::before { content: ""; position: absolute; inset: -6px; } /* bigger tap target */
+.light::after { position: absolute; inset: 0; display: grid; place-items: center; font: 700 9px/1 system-ui, sans-serif; color: rgba(0,0,0,.55); opacity: 0; }
+.light.close::after { content: "×"; }
+.light.min::after { content: "−"; }
+.light.max::after { content: "+"; }
+.lights:hover .light::after, .light:focus-visible::after { opacity: 1; }
 .titlebar span { margin-left: 8px; font-size: 13px; color: var(--muted); font-family: ui-monospace, Menlo, monospace; }
+.window .titlebar { touch-action: none; }
 .window .body { padding: 14px 16px 16px; }
 .window h2 { font-size: 20px; font-weight: 800; letter-spacing: -0.02em; }
 .window .org { font-size: 13px; color: var(--muted); margin-top: 2px; }
@@ -114,6 +128,15 @@ a { color: inherit; }
 .window.empty .big { font-size: 34px; margin-bottom: 4px; }
 .window.empty .btn { margin-top: 14px; }
 
+/* "below" layout (normal-size browser windows): name on top, windows tiled under it */
+.desktop[data-layout="below"] .hero { top: 48px; transform: translateX(-50%); }
+.desktop[data-layout="below"] .window { width: 250px; }
+.desktop[data-layout="below"] .window.zoomed { width: 340px; }
+.desktop[data-layout="below"] .sticker { left: 3%; top: 22px; }
+.desktop[data-layout="below"] .candles { right: 4%; top: 40px; }
+.desktop[data-layout="below"] .g1 { left: -10%; }
+.desktop[data-layout="below"] .window.empty { top: 360px; }
+
 /* ---------- desktop folder ---------- */
 .desk-folder {
   position: absolute; left: 38%; top: 77%; z-index: 6;
@@ -121,6 +144,14 @@ a { color: inherit; }
   background: none; border: 0; cursor: pointer; padding: 8px; border-radius: 10px;
 }
 .desk-folder:hover { background: rgba(37,99,235,.08); }
+.desk-folder { touch-action: none; }
+.desk-folder.dragging { cursor: grabbing; }
+.desk-folder.dragging .folder-icon { transform: scale(1.08) rotate(-4deg); box-shadow: 0 12px 24px rgba(74,163,230,.45); }
+/* hover: the folder lifts and its tab flips open a little */
+.folder-icon, .folder-icon::before { transition: transform .2s ease, box-shadow .2s ease; }
+.desk-folder:hover .folder-icon { transform: translateY(-3px); box-shadow: 0 10px 18px rgba(74,163,230,.45); }
+.desk-folder:hover .folder-icon::before { transform: skewX(-12deg) translateX(3px); }
+.desk-folder.running .folder-name { background: var(--accent); color: #fff; }
 .folder-icon { position: relative; width: 64px; height: 48px; border-radius: 5px 7px 7px 7px; background: linear-gradient(#8fd0ff, #4aa3e6); box-shadow: 0 4px 10px rgba(74,163,230,.35); }
 .folder-icon::before { content: ""; position: absolute; left: 0; top: -8px; width: 26px; height: 10px; border-radius: 5px 5px 0 0; background: #8fd0ff; }
 .folder-name { font: 600 13px ui-monospace, Menlo, monospace; background: #fff; padding: 2px 8px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,.1); }
@@ -157,16 +188,58 @@ a { color: inherit; }
 .foot-links a { font-weight: 600; color: var(--ink); text-decoration: none; min-height: 44px; display: inline-flex; align-items: center; }
 .foot-links a:hover { color: var(--accent); }
 
-/* ---------- dialogs (free-time folder + base) ---------- */
+/* ---------- Free Time window ---------- */
+.free-win {
+  position: fixed; left: 50%; top: 90px; z-index: 900; width: min(760px, calc(100vw - 32px));
+  max-height: calc(100vh - 170px); overflow: auto; user-select: text; touch-action: auto;
+  box-shadow: 0 30px 80px rgba(0,0,0,.22);
+}
+.free-win .titlebar { position: sticky; top: 0; z-index: 1; background: #fff; border-radius: 12px 12px 0 0; }
+.free-win.zoomed { left: 24px !important; top: 72px !important; width: calc(100vw - 48px); max-height: calc(100vh - 170px); }
+.free-win .folder-body { border-radius: 0 0 12px 12px; }
+
+/* ---------- dock ---------- */
+.dock {
+  position: fixed; left: 50%; bottom: 12px; transform: translateX(-50%); z-index: 1000;
+  display: flex; gap: 10px; align-items: flex-end; padding: 8px 10px;
+  border-radius: 20px; border: 1px solid rgba(0,0,0,.08);
+  background: rgba(255,255,255,.72); box-shadow: 0 10px 30px rgba(0,0,0,.12);
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+}
+@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  .dock, .menubar { background: rgba(255,255,255,.96); }
+}
+.dock-item {
+  position: relative; display: block; width: 48px; height: 48px; padding: 0; border: 0; background: none;
+  cursor: pointer; border-radius: 12px; transform-origin: bottom center; transition: transform .18s ease;
+}
+.dock-item:hover, .dock-item:focus-visible { transform: translateY(-6px) scale(1.22); }
+.dock-item.running::after { content: ""; position: absolute; left: 50%; bottom: -6px; width: 4px; height: 4px; margin-left: -2px; border-radius: 50%; background: #444; }
+.ic { display: block; width: 100%; height: 100%; border-radius: 12px; box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 2px 6px rgba(0,0,0,.15); background-repeat: no-repeat; background-position: center; background-size: 58%, cover; }
+.ic-free { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='1.8' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 3c3 3 3 15 0 18M3.5 9c5 1.5 12 1.5 17 0M3.5 15c5-1.5 12-1.5 17 0'/%3E%3C/svg%3E"), linear-gradient(#ffb057, #f2600c); }
+.ic-code { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16'/%3E%3C/svg%3E"), linear-gradient(#3a3f47, #16191d); }
+.ic-work { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='1.8' stroke-linejoin='round'%3E%3Crect x='3' y='7' width='18' height='13' rx='2'/%3E%3Cpath d='M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M3 13h18'/%3E%3C/svg%3E"), linear-gradient(#4f8bff, #1d4ed8); }
+.ic-mail { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='1.8' stroke-linejoin='round'%3E%3Crect x='3' y='5' width='18' height='14' rx='2'/%3E%3Cpath d='M3 7l9 6 9-6'/%3E%3C/svg%3E"), linear-gradient(#6ad1ff, #1e9be8); }
+.tip {
+  position: absolute; left: 50%; bottom: calc(100% + 10px); transform: translateX(-50%);
+  padding: 4px 8px; border-radius: 6px; background: rgba(30,30,30,.85); color: #fff;
+  font: 500 11px "Inter", sans-serif; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity .15s;
+}
+.dock-item:hover .tip, .dock-item:focus-visible .tip { opacity: 1; }
+.foot { padding-bottom: 110px; } /* room for the dock */
+
+/* ---------- popups (base screenshot) ---------- */
 dialog { border: 1px solid var(--line); border-radius: 14px; padding: 0; margin: auto; background: #fff; color: var(--ink); box-shadow: 0 30px 80px rgba(0,0,0,.25); }
-dialog::backdrop { background: rgba(20,20,20,.4); backdrop-filter: blur(3px); }
+dialog::backdrop { background: rgba(20,20,20,.4); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); }
 dialog .titlebar { cursor: default; }
 .x { margin-left: auto; width: 32px; height: 32px; border: 0; border-radius: 8px; background: none; font-size: 22px; line-height: 1; color: var(--muted); cursor: pointer; }
 .x:hover { background: #f1efe9; color: var(--ink); }
-.folder-dialog { width: min(920px, 94vw); }
 .folder-body { padding: 22px 22px 26px; background: var(--bg); }
 .folder-lead { font-size: 15px; color: var(--muted); margin-bottom: 16px; }
-.hobbies { display: grid; grid-template-columns: 1fr 1fr 1.4fr; gap: 14px; align-items: start; }
+.hobbies { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: start; }
+.hobby-photo { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; object-position: center 45%; border-radius: 10px; }
+.hobby .win { color: var(--orange); font-weight: 600; }
+.hobby-app { display: block; width: 44px; height: 44px; border-radius: 11px; box-shadow: 0 2px 6px rgba(0,0,0,.15); }
 .hobby { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 18px; }
 .hobby-icon { font-size: 30px; line-height: 1; }
 .hobby h3 { font-size: 18px; font-weight: 800; margin-top: 10px; }
@@ -183,8 +256,13 @@ dialog .titlebar { cursor: default; }
 .base-dialog img { display: block; width: 100%; height: auto; }
 .base-actions { display: flex; gap: 10px; justify-content: flex-end; padding: 14px; }
 
-/* ---------- tablets + phones: stacked layout, no dragging ---------- */
-@media (max-width: 1100px) {
+/* ---------- small windows: Free Time cards wrap ---------- */
+@media (max-width: 860px) {
+  .hobbies { grid-template-columns: 1fr; }
+}
+
+/* ---------- phones only: stacked layout, no dragging ---------- */
+@media (max-width: 699px) {
   .menubar { flex-wrap: wrap; padding: 10px 16px; }
   .clock { display: none; }
   .tabs { width: 100%; order: 3; overflow-x: auto; flex-wrap: nowrap; }
@@ -192,8 +270,9 @@ dialog .titlebar { cursor: default; }
   .hero { position: static; transform: none; width: 100%; margin: 0 auto 32px; }
   .hero h1 { white-space: normal; }
   .drag-hint { display: none; }
-  #windows { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; max-width: 900px; margin: 0 auto; }
+  #windows { display: grid; gap: 16px; max-width: 480px; margin: 0 auto; }
   .window { position: static; width: auto; }
+  .window.zoomed { width: auto; }
   .window.faded { display: none; }
   .titlebar { cursor: default; }
   .window.empty { position: static; transform: none; max-width: 420px; margin: 0 auto; }
@@ -203,10 +282,16 @@ dialog .titlebar { cursor: default; }
   .about { padding: 56px 16px; }
   .about-inner { grid-template-columns: 1fr; gap: 32px; }
   .photo-win { width: 150px; }
-    .hobbies { grid-template-columns: 1fr; }
+  /* Free Time becomes a sheet that fills the screen */
+  .free-win, .free-win.zoomed { position: fixed; left: 8px !important; right: 8px; top: 8px !important; bottom: 8px; width: auto; max-height: none; z-index: 1100 !important; }
+  .hobbies { grid-template-columns: 1fr; }
+  .dock { gap: 8px; padding: 6px 8px; bottom: 10px; }
+  .dock-item { width: 42px; height: 42px; }
+  .dock-item:hover { transform: none; }
+  body.sheet-open .dock { display: none; }
 }
 @media (max-width: 480px) {
-    .coc-stats { grid-template-columns: 1fr; }
+  .coc-stats { grid-template-columns: 1fr; }
 }
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }

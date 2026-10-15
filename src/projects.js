@@ -1,5 +1,4 @@
 // Edit this list to change what shows on the desktop.
-// x / y are starting positions as a percent of the desktop size.
 export const projects = [
   {
     id: "regulate",
@@ -10,7 +9,6 @@ export const projects = [
     tags: ["web", "data"],
     status: "in progress",
     links: [{ label: "code", url: "https://github.com/Project-Code-Regulate/regulate" }],
-    x: 6, y: 14,
   },
   {
     id: "sail",
@@ -20,7 +18,6 @@ export const projects = [
     blurb: "Software developer building for SAIL 2027.",
     tags: ["web"],
     status: "in progress",
-    x: 70, y: 10,
   },
   {
     id: "nobe",
@@ -30,7 +27,6 @@ export const projects = [
     blurb: "Product developer. Designing a mobile-first website revamp for a restaurant client.",
     tags: ["web", "design"],
     status: "in progress",
-    x: 5, y: 60,
   },
   {
     id: "priors",
@@ -41,6 +37,5 @@ export const projects = [
     tags: ["markets", "data", "web"],
     status: "shipped",
     links: [{ label: "open", url: "https://getpriors.com" }],
-    x: 72, y: 58,
   },
 ];

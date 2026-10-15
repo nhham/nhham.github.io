@@ -1,4 +1,4 @@
-// Free-time folder: the Clash of Clans card and the "show my base" popup.
+// Free Time window: the Clash of Clans card and the "show my base" popup.
 import { yearsPlaying, playingLabel, clanLabel, isValidBaseLink } from "./coc.js";
 
 // ---- fill these two in ----
@@ -34,9 +34,8 @@ async function init() {
     link.hidden = false;
   }
 
-  // free-time folder on the desktop opens the hobbies window
-  wireDialog($("free-dialog"), $("free-open"), $("free-close"));
-  // "show my base" opens the screenshot on top of it
+  // "show my base" opens the screenshot as a popup
+  // (the Free Time window itself is handled in main.js)
   wireDialog($("base-dialog"), $("base-open"), $("base-close"));
 }
 

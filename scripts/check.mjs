@@ -15,7 +15,8 @@ for (const f of readdirSync("src")) {
 
 const html = readFileSync("index.html", "utf8");
 for (const [, ref] of html.matchAll(/(?:href|src)="([^"#:]+)"/g)) {
-  if (!existsSync(ref)) fail(`index.html links to missing file: ${ref}`);
+  const file = ref.split("?")[0]; // ignore cache-busting like styles.css?v=4
+  if (!existsSync(file)) fail(`index.html links to missing file: ${file}`);
 }
 if (!/<title>.+<\/title>/.test(html)) fail("index.html has no <title>");
 if (!html.includes('name="viewport"')) fail("index.html has no viewport meta tag");

@@ -7,12 +7,14 @@ A "desktop" style personal site showing what I'm working on right now (Regulate,
 ## Interactive feature
 
 - **Filter:** the tabs in the top bar (all · web · data · design · markets) bring matching project windows forward and fade the rest. A tag with no projects shows an empty-folder window with a **reset** button.
-- **Drag:** on larger screens, drag any window by its title bar. Windows can't be dragged off the desktop; they stop at the edge.
-- On screens narrower than 1100px the windows stack in one column and dragging is turned off.
+- **Drag:** drag any window by its title bar. Windows can't be dragged off the desktop; they stop at the edge.
+- **Window buttons:** red (or yellow) closes a window, green expands it, and clicking a window brings it to the front. Clicking any filter tab brings closed windows back.
+- **Layout:** on wide screens the windows sit around the name. In a normal-size (not full screen) browser window they tile under the name instead, so it still looks like a desktop. Only phones (under 700px) stack them in one column.
+- **Dock:** a small dock at the bottom opens Free Time and links to GitHub, LinkedIn, and email.
 
-The logic lives in `src/logic.js` as two pure functions (`filterProjects`, `clampPosition`), so it can be tested without a browser. `src/main.js` connects them to the page.
+The logic lives in `src/logic.js` as pure functions (`filterProjects`, `clampPosition`, `placeWindows`), so it can be tested without a browser. `src/main.js` connects them to the page.
 
-## Free-time folder + Clash of Clans
+## Free Time window + Clash of Clans
 
 The **free-time** folder on the desktop opens a window with my hobbies (volleyball, basketball, Clash of Clans). The Clash of Clans card shows my Town Hall, war stars, clan, how long I've played, and a **show my base** popup.
 
@@ -44,17 +46,21 @@ To view locally, serve the folder with any static server, e.g. `npx serve .` or 
 
 ```bash
 npm run check   # every JS file parses, every linked file exists, page has title + viewport tag
-npm test        # Vitest unit tests (tests/logic.test.js)
+npm test        # Vitest unit tests (tests/*.test.js)
+npm run e2e     # browser tests (run `npm run build` first)
 npm run build   # copies the site into dist/
 ```
 
 Tests cover normal use and edge cases:
 - filtering by a tag, "all"/reset, an unused tag (empty state), a missing tag, and that the original list isn't modified
 - dragging inside the desktop, past the top/left edge, past the bottom/right edge, and a window wider than the desktop
+- window layout: phones stack; wide screens never cover the name or overlap; normal-size windows tile under the name
+
+**Cross-browser tests** (`e2e/site.e2e.js`, Playwright) load the built site in **Chrome, Firefox, and Safari's engine (WebKit)** at desktop, laptop, small-window, and phone sizes. They check that windows never cover the name or each other, there's no sideways scrolling, and that filtering, window buttons, dragging, the dock, and Free Time all work.
 
 ## CI/CD
 
-- **`.github/workflows/ci.yml`** runs checks, tests, and build on **every pull request** and every push to `main`.
+- **`.github/workflows/ci.yml`** runs checks, tests, and build on **every pull request** and every push to `main`. A second job, `cross-browser`, runs the Playwright tests in Chrome, Firefox, and WebKit.
 - **Branch protection** on `main` requires the `checks-and-tests` job to pass before a PR can merge.
 - **`.github/workflows/deploy.yml`** runs on every push to `main`: it re-runs checks and tests, builds, and deploys `dist/` to **GitHub Pages**. If anything fails, nothing deploys.
 

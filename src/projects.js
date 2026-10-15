@@ -1,0 +1,45 @@
+// Edit this list to change what shows on the desktop.
+// x / y are starting positions as a percent of the desktop size.
+export const projects = [
+  {
+    id: "regulate",
+    file: "regulate.app",
+    title: "Regulate",
+    org: "Project: Code",
+    blurb: "Stress & mood tracking web app. I'm on the backend: SQLite database and schema design.",
+    tags: ["web", "data"],
+    status: "in progress",
+    x: 6, y: 14,
+  },
+  {
+    id: "sail",
+    file: "sail-2027.event",
+    title: "SAIL 2027",
+    org: "Illinois CS SAIL",
+    blurb: "Software developer building for SAIL 2027.",
+    tags: ["web"],
+    status: "in progress",
+    x: 70, y: 10,
+  },
+  {
+    id: "nobe",
+    file: "nobe.client",
+    title: "NOBE",
+    org: "Tech Committee",
+    blurb: "Product developer. Designing a mobile-first website revamp for a restaurant client.",
+    tags: ["web", "design"],
+    status: "in progress",
+    x: 5, y: 60,
+  },
+  {
+    id: "priors",
+    file: "priors.app",
+    title: "Priors",
+    org: "Personal project",
+    blurb: "Cross-venue prediction market analytics for Kalshi + Polymarket.",
+    tags: ["markets", "data", "web"],
+    status: "shipped",
+    link: "https://getpriors.com",
+    x: 72, y: 58,
+  },
+];

@@ -68,6 +68,22 @@ To update the site: branch → commit → open a PR → checks pass → merge �
 
 To change the projects shown, edit `src/projects.js`.
 
+## Checkpoint evidence
+
+The CI/CD pipeline in action on [PR #2](https://github.com/nhham/nhham.github.io/pull/2):
+
+**1. A failing check blocks the PR.** I broke a test on purpose (`clampPosition` expected `x: 801` instead of `800`), and `checks-and-tests` failed.
+
+![Failing check on PR #2](docs/evidence/1-failing-check.png)
+
+**2. Fixing the test makes every check pass**, including the cross-browser tests in Chrome, Firefox, and WebKit.
+
+![All checks passing on PR #2](docs/evidence/2-passing-check.png)
+
+**3. Merging to `main` deploys the site.** The Actions history shows the failed run (CI #5), the passing run (CI #6), then the merge and the successful Deploy to GitHub Pages (Deploy #3).
+
+![Actions history: fail, pass, merge, deploy](docs/evidence/3-merge-and-deploy.png)
+
 ## AI use and limitations
 
 I used Claude (Anthropic) to help scaffold this project: the page layout and styling, the drag/filter logic, the tests, and the GitHub Actions workflows. I chose the design direction and content, reviewed and ran everything, and set up the repo, branch protection, and deployment myself.

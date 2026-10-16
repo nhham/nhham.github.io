@@ -4,6 +4,30 @@
 
 A "desktop" style personal site showing what I'm working on right now (Regulate, SAIL 2027, NOBE) plus Priors.
 
+## For reviewers: quick links
+
+| What | Where |
+|---|---|
+| Live site | https://nhham.github.io |
+| CI evidence (failing check → passing check → merge → deploy) | [Checkpoint evidence](#checkpoint-evidence) below |
+| Example PR with a failing then passing check | [PR #2](https://github.com/nhham/nhham.github.io/pull/2) |
+| All CI and deploy runs | [Actions](https://github.com/nhham/nhham.github.io/actions) |
+| CI workflow | [`.github/workflows/ci.yml`](.github/workflows/ci.yml) |
+| Deploy workflow | [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) |
+| Unit tests | [`tests/`](tests) |
+| Browser tests (Chrome, Firefox, WebKit) | [`e2e/site.e2e.js`](e2e/site.e2e.js) |
+
+**How `main` is protected:** changes go in through a pull request. CI must pass before it can merge, and the site only deploys from `main`. A PR that breaks a check can't be merged, so the live site stays up.
+
+**Run it yourself:**
+```bash
+npm ci
+npm run check   # quality checks
+npm test        # unit tests
+npm run build   # builds dist/
+npx playwright install && npm run e2e   # browser tests (optional)
+```
+
 ## Interactive feature
 
 - **Filter:** the tabs in the top bar (all · web · data · design · markets) bring matching project windows forward and fade the rest. A tag with no projects shows an empty-folder window with a **reset** button.
@@ -67,6 +91,22 @@ Tests cover normal use and edge cases:
 To update the site: branch → commit → open a PR → checks pass → merge → it deploys automatically.
 
 To change the projects shown, edit `src/projects.js`.
+
+## Checkpoint evidence
+
+The CI/CD pipeline in action on [PR #2](https://github.com/nhham/nhham.github.io/pull/2):
+
+**1. A failing check blocks the PR.** I broke a test on purpose (`clampPosition` expected `x: 801` instead of `800`), and `checks-and-tests` failed.
+
+![Failing check on PR #2](docs/evidence/1-failing-check.png)
+
+**2. Fixing the test makes every check pass**, including the cross-browser tests in Chrome, Firefox, and WebKit.
+
+![All checks passing on PR #2](docs/evidence/2-passing-check.png)
+
+**3. Merging to `main` deploys the site.** The Actions history shows the failed run (CI #5), the passing run (CI #6), then the merge and the successful Deploy to GitHub Pages (Deploy #3).
+
+![Actions history: fail, pass, merge, deploy](docs/evidence/3-merge-and-deploy.png)
 
 ## AI use and limitations
 

@@ -12,13 +12,14 @@ const freeWin = $("free-win");
 const folder = $("free-open");
 const isPhone = () => window.innerWidth < STACK_MAX;
 let topZ = 10;
+const calm = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 let mode = null;            // "around" | "below" | "stack"
 const moved = new Set();    // windows the visitor dragged keep their spot on resize
 
 const lights = (name) => `
   <div class="lights">
     <button class="light close" type="button" data-act="close" aria-label="Close ${name}"></button>
-    <button class="light min" type="button" data-act="close" aria-label="Minimize ${name}"></button>
+    <button class="light min" type="button" data-act="min" aria-label="Minimize ${name}"></button>
     <button class="light max" type="button" data-act="max" aria-label="Expand ${name}"></button>
   </div>`;
 
@@ -98,6 +99,7 @@ function layout() {
       w.style.left = p.x + "px";
       w.style.top = p.y + "px";
     });
+    placeFileIcons();
     if (moved.has("folder")) {
       const p = clampPosition(folder.offsetLeft, folder.offsetTop, folder.offsetWidth, folder.offsetHeight, W, r.height);
       folder.style.left = p.x + "px"; folder.style.top = p.y + "px";
@@ -148,6 +150,7 @@ function wireWindow(win, area) {
   win.addEventListener("click", (e) => {
     const act = e.target.closest("[data-act]")?.dataset.act;
     if (act === "close") closeWin(win);
+    if (act === "min") minimizeWin(win);
     if (act === "max") {
       win.classList.toggle("zoomed");
       front(win);
@@ -159,15 +162,107 @@ function wireWindow(win, area) {
   });
 }
 
-function closeWin(win) {
+// ---- the Mac "genie" (suck) effect ----
+// The window's bottom pinches toward the target while it slides and shrinks into it.
+// Run backwards (reverse = true) to pop a window back out.
+function genie(win, target, { reverse = false, duration = 420 } = {}) {
+  if (calm()) return Promise.resolve();
+  const w = win.getBoundingClientRect();
+  const t = target.getBoundingClientRect();
+  const dx = t.left + t.width / 2 - (w.left + w.width / 2);
+  const dy = t.top + t.height / 2 - (w.top + w.height / 2);
+  const below = dy > 0;                                     // sucked down (dock) or up?
+  const tx = Math.min(95, Math.max(5, ((t.left + t.width / 2 - w.left) / w.width) * 100));
+  const pinch = below
+    ? `polygon(0% 0%, 100% 0%, ${tx + 7}% 100%, ${tx - 7}% 100%)`
+    : `polygon(${tx - 7}% 0%, ${tx + 7}% 0%, 100% 100%, 0% 100%)`;
+  const frames = [
+    { offset: 0, transform: "none", clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)", opacity: 1 },
+    { offset: 0.45, transform: `translate(${dx * 0.2}px, ${dy * 0.2}px) scale(0.85, 0.9)`, clipPath: pinch, opacity: 1 },
+    { offset: 1, transform: `translate(${dx}px, ${dy}px) scale(0.04)`, clipPath: pinch, opacity: 0 },
+  ];
+  if (reverse) frames.reverse().forEach((f) => (f.offset = 1 - f.offset));
+  return win.animate(frames, { duration, easing: reverse ? "cubic-bezier(.2,.8,.3,1)" : "cubic-bezier(.6,0,.8,.4)" }).finished;
+}
+
+const dock = document.querySelector(".dock");
+const fileOf = (win) => projects.find((p) => p.id === win.dataset.id)?.file ?? "window";
+const TAG_COLOR = { web: "#2563eb", data: "#16a34a", design: "#f2600c", markets: "#7c3aed" };
+const colorOf = (win) => TAG_COLOR[projects.find((p) => p.id === win.dataset.id)?.tags[0]] ?? "#66625c";
+
+function hide(win) { win.classList.add("gone"); win.classList.remove("zoomed"); }
+async function show(win, from) {
+  win.classList.remove("gone");
+  front(win);
+  await genie(win, from, { reverse: true });
+}
+
+// yellow: minimize into a tile in the dock; click the tile to bring it back
+async function minimizeWin(win) {
   if (win === freeWin) return closeFree();
-  win.hidden = true;
-  win.classList.remove("zoomed");
+  if (!dock.querySelector(".dock-sep")) dock.insertAdjacentHTML("beforeend", '<span class="dock-sep" aria-hidden="true"></span>');
+  const tile = document.createElement("button");
+  tile.type = "button";
+  tile.className = "dock-item dock-mini";
+  tile.dataset.win = win.dataset.id;
+  tile.style.setProperty("--c", colorOf(win));
+  tile.innerHTML = `<span class="ic mini-ic" aria-hidden="true">${win.querySelector("h2").textContent[0]}</span><span class="tip">${fileOf(win)}</span>`;
+  tile.setAttribute("aria-label", `Restore ${fileOf(win)}`);
+  dock.appendChild(tile);
+  tile.addEventListener("click", async () => {
+    await show(win, tile);
+    removeTile(tile);
+  });
+  await genie(win, tile);
+  hide(win);
+}
+function removeTile(tile) {
+  tile.remove();
+  if (!dock.querySelector(".dock-mini")) dock.querySelector(".dock-sep")?.remove();
+}
+
+// red: close into a file icon on the desktop where the window was; click it to reopen
+async function closeWin(win) {
+  if (win === freeWin) return closeFree();
+  if (isPhone()) return minimizeWin(win);        // stacked phone layout: send it to the dock instead
+  const icon = document.createElement("button");
+  icon.type = "button";
+  icon.className = "desk-file";
+  icon.dataset.win = win.dataset.id;
+  icon.style.setProperty("--c", colorOf(win));
+  icon.innerHTML = `<span class="file-icon" aria-hidden="true"></span><span class="folder-name">${fileOf(win)}</span>`;
+  icon.setAttribute("aria-label", `Reopen ${fileOf(win)}`);
+  desktop.appendChild(icon);
+  placeFileIcon(icon, win);
+  icon.addEventListener("click", async () => {
+    icon.remove();
+    await show(win, icon);
+  });
+  await genie(win, icon.querySelector(".file-icon"));
+  hide(win);
+  icon.classList.add("pop-in");
+}
+function placeFileIcon(icon, win) {
+  const x = win.offsetLeft + win.offsetWidth / 2 - icon.offsetWidth / 2;
+  const y = win.offsetTop + 24;
+  const p = clampPosition(x, y, icon.offsetWidth, icon.offsetHeight, desktop.clientWidth, desktop.clientHeight);
+  icon.style.left = p.x + "px";
+  icon.style.top = p.y + "px";
+}
+function placeFileIcons() {
+  for (const icon of desktop.querySelectorAll(".desk-file")) {
+    placeFileIcon(icon, windowsEl.querySelector(`[data-id="${icon.dataset.win}"]`));
+  }
+}
+// bring back every closed or minimized window at once (used by the filter tabs)
+function restoreAll() {
+  for (const el of document.querySelectorAll(".desk-file, .dock-mini")) el.remove();
+  dock.querySelector(".dock-sep")?.remove();
+  for (const win of windowsEl.children) win.classList.remove("gone");
 }
 
 // ---- Free Time window (opened from the desktop folder or the dock) ----
-// It "zooms" out of whatever opened it and shrinks back into it on close.
-const calm = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+// It pops out of whatever opened it and gets sucked back into it on close.
 let lastOpener = null;
 
 /** The transform that shrinks the window onto the opener's icon. */
@@ -191,10 +286,8 @@ function openFree(opener) {
     freeWin.style.top = Math.max(64, (window.innerHeight - freeWin.offsetHeight) / 2 - 30) + "px";
   }
   if (wasHidden && !calm()) {
-    freeWin.animate(
-      [{ transform: shrinkOnto(opener), opacity: 0 }, { transform: "none", opacity: 1 }],
-      { duration: 320, easing: "cubic-bezier(.2,.9,.3,1.15)" },   // slight overshoot = little bounce
-    );
+    if (isPhone()) freeWin.animate([{ transform: shrinkOnto(opener) }, { transform: "none" }], { duration: 300, easing: "ease-out" });
+    else genie(freeWin, opener || folder, { reverse: true });
   }
   syncFree();
   freeWin.querySelector(".light.close").focus({ preventScroll: true });
@@ -208,10 +301,11 @@ function closeFree() {
     (lastOpener || folder).focus({ preventScroll: true });
   };
   if (calm() || freeWin.hidden) return done();
-  freeWin.animate(
-    [{ transform: "none", opacity: 1 }, { transform: shrinkOnto(lastOpener), opacity: 0 }],
-    { duration: 220, easing: "ease-in" },
-  ).onfinish = done;
+  if (isPhone()) {
+    freeWin.animate([{ transform: "none" }, { transform: shrinkOnto(lastOpener) }], { duration: 220, easing: "ease-in" }).onfinish = done;
+  } else {
+    genie(freeWin, lastOpener || folder).then(done);
+  }
 }
 
 // ---- the free-time folder can be dragged around the desktop too ----
@@ -258,7 +352,7 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "Escape" && !freeWin.hidden && !document.querySelector("dialog[open]")) closeWin(freeWin);
 });
 
-// ---- filter tabs (clicking one also brings back closed windows) ----
+// ---- filter tabs (clicking one also brings back closed and minimized windows) ----
 for (const tag of TAGS) {
   const b = document.createElement("button");
   b.type = "button";
@@ -272,10 +366,10 @@ for (const tag of TAGS) {
 $("reset").addEventListener("click", () => applyFilter("all"));
 
 function applyFilter(tag) {
+  restoreAll();
   const visible = new Set(filterProjects(projects, tag).map((p) => p.id));
   for (const win of windowsEl.children) {
     const on = visible.has(win.dataset.id);
-    win.hidden = false;
     win.classList.toggle("faded", !on);
     win.classList.toggle("pop", on && tag !== "all");
   }

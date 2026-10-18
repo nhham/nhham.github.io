@@ -117,3 +117,25 @@ test("the free-time folder can be dragged without opening, and a click opens it"
   await page.click("#free-win .light.close");
   await expect(page.locator("#free-win")).toBeHidden();
 });
+
+test("yellow minimizes into the dock; red closes into a desktop file icon", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto("/");
+  const sail = page.locator('[data-id="sail"]');
+  await page.click('[data-id="sail"] .light.min');
+  await expect(sail).toBeHidden();
+  const tile = page.locator('.dock-mini[data-win="sail"]');
+  await expect(tile).toBeVisible();
+  await tile.click();
+  await expect(sail).toBeVisible();
+  await expect(tile).toHaveCount(0);
+
+  const reg = page.locator('[data-id="regulate"]');
+  await page.click('[data-id="regulate"] .light.close');
+  await expect(reg).toBeHidden();
+  const icon = page.locator('.desk-file[data-win="regulate"]');
+  await expect(icon).toBeVisible();
+  await icon.click();
+  await expect(reg).toBeVisible();
+  await expect(icon).toHaveCount(0);
+});

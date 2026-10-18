@@ -85,6 +85,7 @@ a { color: inherit; }
   touch-action: none; user-select: none;
 }
 .window.zoomed { width: 360px; }
+.window.gone { visibility: hidden; pointer-events: none; }
 .window.zoomed .blurb { font-size: 16px; }
 .window.dragging { cursor: grabbing; box-shadow: 0 20px 50px rgba(0,0,0,.16); transition: none; }
 .window.faded { opacity: .18; filter: grayscale(1); transform: scale(.96); pointer-events: none; }
@@ -188,6 +189,24 @@ a { color: inherit; }
 .foot-links a { font-weight: 600; color: var(--ink); text-decoration: none; min-height: 44px; display: inline-flex; align-items: center; }
 .foot-links a:hover { color: var(--accent); }
 
+/* ---------- closed windows become file icons on the desktop ---------- */
+.desk-file {
+  position: absolute; z-index: 6; display: grid; justify-items: center; gap: 6px;
+  background: none; border: 0; cursor: pointer; padding: 8px; border-radius: 10px;
+}
+.desk-file:hover { background: rgba(37,99,235,.08); }
+.desk-file:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.file-icon {
+  position: relative; width: 44px; height: 54px; border-radius: 4px 12px 4px 4px; background: #fff;
+  border: 1px solid var(--line); box-shadow: 0 4px 10px rgba(0,0,0,.10);
+  transition: transform .2s ease;
+}
+.file-icon::before { content: ""; position: absolute; left: 7px; right: 7px; top: 14px; height: 4px; border-radius: 2px; background: var(--c); box-shadow: 0 9px 0 #e4e1da, 0 18px 0 #e4e1da; }
+.file-icon::after { content: ""; position: absolute; right: -1px; top: -1px; width: 12px; height: 12px; background: linear-gradient(225deg, var(--bg) 50%, #e9e6df 50%); border-radius: 0 12px 0 3px; }
+.desk-file:hover .file-icon { transform: translateY(-3px); }
+.desk-file.pop-in { animation: pop-in .25s cubic-bezier(.2,.9,.3,1.3); }
+@keyframes pop-in { from { transform: scale(.6); opacity: 0; } to { transform: none; opacity: 1; } }
+
 /* ---------- Free Time window ---------- */
 .free-win {
   position: fixed; left: 50%; top: 90px; z-index: 900; width: min(760px, calc(100vw - 32px));
@@ -220,6 +239,9 @@ a { color: inherit; }
 .ic-code { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16'/%3E%3C/svg%3E"), linear-gradient(#3a3f47, #16191d); }
 .ic-work { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='1.8' stroke-linejoin='round'%3E%3Crect x='3' y='7' width='18' height='13' rx='2'/%3E%3Cpath d='M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M3 13h18'/%3E%3C/svg%3E"), linear-gradient(#4f8bff, #1d4ed8); }
 .ic-mail { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='1.8' stroke-linejoin='round'%3E%3Crect x='3' y='5' width='18' height='14' rx='2'/%3E%3Cpath d='M3 7l9 6 9-6'/%3E%3C/svg%3E"), linear-gradient(#6ad1ff, #1e9be8); }
+.dock-sep { align-self: stretch; width: 1px; margin: 4px 2px; background: rgba(0,0,0,.15); }
+.mini-ic { display: grid; place-items: center; background: #fff; border-top: 8px solid var(--c); font: 800 20px "Inter", sans-serif; color: var(--ink); }
+.dock-mini { animation: pop-in .25s ease-out; }
 .tip {
   position: absolute; left: 50%; bottom: calc(100% + 10px); transform: translateX(-50%);
   padding: 4px 8px; border-radius: 6px; background: rgba(30,30,30,.85); color: #fff;
@@ -273,6 +295,7 @@ dialog .titlebar { cursor: default; }
   #windows { display: grid; gap: 16px; max-width: 480px; margin: 0 auto; }
   .window { position: static; width: auto; }
   .window.zoomed { width: auto; }
+  .window.gone { display: none; }
   .window.faded { display: none; }
   .titlebar { cursor: default; }
   .window.empty { position: static; transform: none; max-width: 420px; margin: 0 auto; }
